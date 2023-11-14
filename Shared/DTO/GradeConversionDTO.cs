@@ -14,6 +14,8 @@ namespace OCTOBER.Shared.DTO
         [Unicode(false)]
         public string LetterGrade { get; set; } = null!;
         [Precision(3)]
+        public decimal GradePoint { get; set; }
+        [Precision(3)]
         public byte MaxGrade { get; set; }
         [Precision(3)]
         public byte MinGrade { get; set; }
