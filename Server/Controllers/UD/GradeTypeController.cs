@@ -29,17 +29,85 @@ namespace OCTOBER.Server.Controllers.UD
         {
         }
 
-        [HttpDelete]
-        [Route("Delete/{SchoolID}")]
+        [HttpPut]
+        [Route("Put")]
+        public async Task<IActionResult> Put([FromBody]
+                                                GradeTypeDTO _GradeTypeDTO)
+        {
 
-        public async Task<IActionResult> Delete(int SchoolID)
+            Debugger.Launch();
+
+            try
+            {
+                await _context.Database.BeginTransactionAsync();
+
+                var itm = await _context.GradeTypes.Where(x => x.SchoolId == _GradeTypeDTO.SchoolId).FirstOrDefaultAsync();
+
+                itm.Description = _GradeTypeDTO.Description;
+                itm.SchoolId = _GradeTypeDTO.SchoolId;
+                itm.GradeTypeCode = _GradeTypeDTO.GradeTypeCode;
+
+                _context.GradeTypes.Update(itm);
+                await _context.SaveChangesAsync();
+                await _context.Database.CommitTransactionAsync();
+
+                return Ok();
+            }
+            catch (Exception Dex)
+            {
+                await _context.Database.RollbackTransactionAsync();
+                //List<OraError> DBErrors = ErrorHandling.TryDecodeDbUpdateException(Dex, _OraTranslateMsgs);
+                return StatusCode(StatusCodes.Status417ExpectationFailed, "An Error has occurred");
+            }
+        }
+
+        [HttpPost]
+        [Route("Post")]
+        public async Task<IActionResult> Post([FromBody]
+                                                GradeTypeDTO _GradeTypeDTO)
+        {
+            try
+            {
+                await _context.Database.BeginTransactionAsync();
+
+                var itm = await _context.GradeTypes.Where(x => x.SchoolId == _GradeTypeDTO.SchoolId).FirstOrDefaultAsync();
+
+                if (itm == null)
+                {
+                    GradeType c = new GradeType
+                    {
+                        Description = _GradeTypeDTO.Description,
+                        SchoolId = _GradeTypeDTO.SchoolId,
+                        GradeTypeCode = _GradeTypeDTO.GradeTypeCode
+                    };
+                    _context.GradeTypes.Add(c);
+                    await _context.SaveChangesAsync();
+                    await _context.Database.CommitTransactionAsync();
+                }
+                return Ok();
+            }
+            catch (Exception Dex)
+            {
+                await _context.Database.RollbackTransactionAsync();
+                //List<OraError> DBErrors = ErrorHandling.TryDecodeDbUpdateException(Dex, _OraTranslateMsgs);
+                return StatusCode(StatusCodes.Status417ExpectationFailed, "An Error has occurred");
+            }
+        }
+
+        [HttpDelete]
+        [Route("Delete/{SchoolID}/{GradeTypeCode}")]
+
+        public async Task<IActionResult> Delete(int SchoolID, string GradeTypeCode)
         {
             Debugger.Launch();
             try
             {
                 await _context.Database.BeginTransactionAsync();
 
-                var itm = await _context.GradeTypes.Where(x => x.SchoolId == SchoolID).WhereFirstOrDefaultAsync();
+                var itm = await _context.GradeTypes
+                    .Where(x => x.SchoolId == SchoolID)
+                    .Where(x => x.GradeTypeCode == GradeTypeCode)
+                    .WhereFirstOrDefaultAsync();
 
                 if (itm != null)
                 {
@@ -130,82 +198,12 @@ namespace OCTOBER.Server.Controllers.UD
             throw new NotImplementedException();
         }
 
-        public Task<IActionResult> Post([FromBody] GradeTypeDTO _T)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<IActionResult> Put([FromBody] GradeTypeDTO _T)
+        public Task<IActionResult> Delete(int KeyVal)
         {
             throw new NotImplementedException();
         }
     }
 
-
-    [HttpPost]
-    [Route("Post")]
-    public async Task<IActionResult> Post([FromBody]
-                                                GradeTypeDTO _GradeTypeDTO)
-    {
-        try
-        {
-            await _context.Database.BeginTransactionAsync();
-
-            var itm = await _context.GradeTypes.Where(x => x.SchoolId == _GradeTypeDTO.SchoolId).FirstOrDefaultAsync();
-
-            if (itm == null)
-            {
-                GradeType c = new GradeType
-                {
-                    Description = _GradeTypeDTO.Description,
-                    SchoolId = _GradeTypeDTO.SchoolId,
-                    GradeTypeCode= _GradeTypeDTO.GradeTypeCode
-                };
-                _context.GradeTypes.Add(c);
-                await _context.SaveChangesAsync();
-                await _context.Database.CommitTransactionAsync();
-            }
-            return Ok();
-        }
-        catch (Exception Dex)
-        {
-            await _context.Database.RollbackTransactionAsync();
-            //List<OraError> DBErrors = ErrorHandling.TryDecodeDbUpdateException(Dex, _OraTranslateMsgs);
-            return StatusCode(StatusCodes.Status417ExpectationFailed, "An Error has occurred");
-        }
-    }
-
-    [HttpPut]
-    [Route("Put")]
-    public async Task<IActionResult> Put([FromBody]
-                                                GradeTypeDTO _GradeTypeDTO)
-    {
-
-        Debugger.Launch();
-
-        try
-        {
-            await _context.Database.BeginTransactionAsync();
-
-            var itm = await _context.GradeTypes.Where(x => x.CourseNo == _GradeTypeDTO.SchoolId).FirstOrDefaultAsync();
-
-            itm.Description = _GradeTypeDTO.Description;
-            itm.SchoolId = _GradeTypeDTO.SchoolId;
-            itm.GradeTypeCode = _GradeTypeDTO.GradeTypeCode;
-
-            _context.GradeTypes.Update(itm);
-            await _context.SaveChangesAsync();
-            await _context.Database.CommitTransactionAsync();
-
-            return Ok();
-        }
-        catch (Exception Dex)
-        {
-            await _context.Database.RollbackTransactionAsync();
-            //List<OraError> DBErrors = ErrorHandling.TryDecodeDbUpdateException(Dex, _OraTranslateMsgs);
-            return StatusCode(StatusCodes.Status417ExpectationFailed, "An Error has occurred");
-        }
-    }
 
 }
 

@@ -151,7 +151,7 @@ namespace OCTOBER.Server.Controllers.UD
 
                 if (itm == null)
                 {
-                    GradeConversionDTO c = new GradeConversionDTO
+                    GradeConversion c = new GradeConversion
                     {
                         SchoolId = _gradeConversionDTO.SchoolId,
                         LetterGrade = _gradeConversionDTO.LetterGrade,

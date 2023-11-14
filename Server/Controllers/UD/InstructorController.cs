@@ -155,7 +155,7 @@ namespace OCTOBER.Server.Controllers.UD
                     Instructor s = new Instructor
                     {
 
-                        SchoolId = _StudentDTO.SchoolId,
+                        SchoolId = _InstructorDTO.SchoolId,
                         InstructorId = _InstructorDTO.InstructorId
                     };
                     _context.Instructors.Add(s);
