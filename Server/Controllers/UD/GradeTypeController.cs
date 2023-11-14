@@ -43,7 +43,7 @@ namespace OCTOBER.Server.Controllers.UD
 
                 if (itm != null)
                 {
-                    _context.Schools.Remove(itm);
+                    _context.GradeTypes.Remove(itm);
                 }
                 await _context.SaveChangesAsync();
                 await _context.Database.CommitTransactionAsync();
