@@ -1,7 +1,10 @@
 ﻿using System;
+using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using OCTOBER.EF.Data;
+using OCTOBER.EF.Models;
 using OCTOBER.Server.Controllers.Base;
 using OCTOBER.Shared.DTO;
 
@@ -19,29 +22,172 @@ namespace OCTOBER.Server.Controllers.UD
         {
         }
 
-        public Task<IActionResult> Delete(int KeyVal)
+        [HttpDelete]
+        [Route("Delete/{SchoolID}/{InstructorID}")]
+
+        public async Task<IActionResult> Delete(int SchoolID, int InstructorID)
         {
-            throw new NotImplementedException();
+            Debugger.Launch();
+            try
+            {
+                await _context.Database.BeginTransactionAsync();
+
+                var itm = await _context.Instructors
+                    .Where(x => x.SchoolId == SchoolID)
+                    .Where(x => x.InstructorId == InstructorID)
+                    .FirstOrDefaultAsync();
+
+                if (itm != null)
+                {
+                    _context.Instructors.Remove(itm);
+                }
+                await _context.SaveChangesAsync();
+                await _context.Database.CommitTransactionAsync();
+
+                return Ok();
+            }
+            catch (Exception Dex)
+            {
+                await _context.Database.RollbackTransactionAsync();
+                //List<OraError> DBErrors = ErrorHandling.TryDecodeDbUpdateException(Dex, _OraTranslateMsgs);
+                return StatusCode(StatusCodes.Status417ExpectationFailed, "An Error has occurred");
+            }
         }
 
-        public Task<IActionResult> Get()
+
+        [HttpGet]
+        [Route("Get")]
+        public async Task<IActionResult> Get()
         {
-            throw new NotImplementedException();
+            Debugger.Launch();
+            try
+            {
+                await _context.Database.BeginTransactionAsync();
+
+                var result = await _context.Instructors.Select(sp => new InstructorDTO
+                {
+                    CreatedBy = sp.CreatedBy,
+                    CreatedDate = sp.CreatedDate,
+                    ModifiedBy = sp.ModifiedBy,
+                    ModifiedDate = sp.ModifiedDate,
+                    SchoolId = sp.SchoolId,
+                    InstructorId=sp.InstructorId,
+                    FirstName = sp.FirstName,
+                    LastName = sp.LastName,
+                    Phone = sp.Phone,
+                    Salutation = sp.Salutation,
+                    StreetAddress = sp.StreetAddress,
+                    Zip = sp.Zip
+
+                })
+                .ToListAsync();
+                await _context.Database.RollbackTransactionAsync();
+                return Ok(result);
+            }
+            catch (Exception Dex)
+            {
+                await _context.Database.RollbackTransactionAsync();
+                //List<OraError> DBErrors = ErrorHandling.TryDecodeDbUpdateException(Dex, _OraTranslateMsgs);
+                return StatusCode(StatusCodes.Status417ExpectationFailed, "An Error has occurred");
+            }
         }
 
-        public Task<IActionResult> Get(int KeyVal)
+        [HttpGet]
+        [Route("Get/{SchoolID}/{InstructorID}")]
+        public async Task<IActionResult> Get(int SchoolID, int InstructorID)
         {
-            throw new NotImplementedException();
+            try
+            {
+                await _context.Database.BeginTransactionAsync();
+
+                InstructorDTO? result = await _context.Instructors
+                    .Where(x => x.SchoolId == SchoolID)
+                    .Where(x => x.InstructorId == InstructorID)
+                    .Select(sp => new InstructorDTO
+                    {
+                        CreatedBy = sp.CreatedBy,
+                        CreatedDate = sp.CreatedDate,
+                        ModifiedBy = sp.ModifiedBy,
+                        ModifiedDate = sp.ModifiedDate,
+                        SchoolId = sp.SchoolId,
+                        InstructorId = sp.InstructorId,
+                        FirstName = sp.FirstName,
+                        LastName = sp.LastName,
+                        Phone = sp.Phone,
+                        Salutation = sp.Salutation,
+                        StreetAddress = sp.StreetAddress,
+                        Zip = sp.Zip
+                    })
+                .SingleAsync();
+                await _context.Database.RollbackTransactionAsync();
+                return Ok(result);
+            }
+            catch (Exception Dex)
+            {
+                await _context.Database.RollbackTransactionAsync();
+                //List<OraError> DBErrors = ErrorHandling.TryDecodeDbUpdateException(Dex, _OraTranslateMsgs);
+                return StatusCode(StatusCodes.Status417ExpectationFailed, "An Error has occurred");
+            }
         }
 
-        public Task<IActionResult> Post([FromBody] InstructorDTO _T)
+        [HttpPost]
+        [Route("Post")]
+
+        public async Task<IActionResult> Post([FromBody] InstructorDTO _InstructorDTO)
         {
-            throw new NotImplementedException();
+            try
+            {
+                await _context.Database.BeginTransactionAsync();
+
+                var itm = await _context.Instructors.Where(x => x.InstructorId == _InstructorDTO.InstructorId).FirstOrDefaultAsync();
+
+                if (itm == null)
+                {
+                    Instructor s = new Instructor
+                    {
+
+                        SchoolId = _StudentDTO.SchoolId,
+                        InstructorId = _InstructorDTO.InstructorId
+                    };
+                    _context.Instructors.Add(s);
+                    await _context.SaveChangesAsync();
+                    await _context.Database.CommitTransactionAsync();
+                }
+                return Ok();
+            }
+            catch (Exception Dex)
+            {
+                await _context.Database.RollbackTransactionAsync();
+                //List<OraError> DBErrors = ErrorHandling.TryDecodeDbUpdateException(Dex, _OraTranslateMsgs);
+                return StatusCode(StatusCodes.Status417ExpectationFailed, "An Error has occurred");
+            }
         }
 
-        public Task<IActionResult> Put([FromBody] InstructorDTO _T)
+        [HttpPut]
+        [Route("Put")]
+        public async Task<IActionResult> Put([FromBody] InstructorDTO _InstructorDTO)
         {
-            throw new NotImplementedException();
+
+            try
+            {
+                await _context.Database.BeginTransactionAsync();
+
+                var itm = await _context.Instructors.Where(x => x.InstructorId == _InstructorDTO.InstructorId).FirstOrDefaultAsync();
+
+                itm.InstructorId = _InstructorDTO.InstructorId;
+
+                _context.Instructors.Update(itm);
+                await _context.SaveChangesAsync();
+                await _context.Database.CommitTransactionAsync();
+
+                return Ok();
+            }
+            catch (Exception Dex)
+            {
+                await _context.Database.RollbackTransactionAsync();
+                //List<OraError> DBErrors = ErrorHandling.TryDecodeDbUpdateException(Dex, _OraTranslateMsgs);
+                return StatusCode(StatusCodes.Status417ExpectationFailed, "An Error has occurred");
+            }
         }
     }
 }
