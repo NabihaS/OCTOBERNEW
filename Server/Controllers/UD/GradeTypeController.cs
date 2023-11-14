@@ -124,6 +124,21 @@ namespace OCTOBER.Server.Controllers.UD
                 return StatusCode(StatusCodes.Status417ExpectationFailed, "An Error has occurred");
             }
         }
+
+        public Task<IActionResult> Get(int KeyVal)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<IActionResult> Post([FromBody] GradeTypeDTO _T)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<IActionResult> Put([FromBody] GradeTypeDTO _T)
+        {
+            throw new NotImplementedException();
+        }
     }
 
 

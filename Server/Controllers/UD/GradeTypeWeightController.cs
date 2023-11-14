@@ -57,6 +57,11 @@ namespace OCTOBER.Server.Controllers.UD
             }
         }
 
+        public Task<IActionResult> Delete(int KeyVal)
+        {
+            throw new NotImplementedException();
+        }
+
         public Task<IActionResult> Get(int KeyVal)
         {
             throw new NotImplementedException();

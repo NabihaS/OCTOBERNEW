@@ -54,6 +54,10 @@ namespace OCTOBER.Server.Controllers.UD
             }
         }
 
+        public Task<IActionResult> Delete(int KeyVal)
+        {
+            throw new NotImplementedException();
+        }
 
         [HttpGet]
         [Route("Get")]
@@ -132,6 +136,11 @@ namespace OCTOBER.Server.Controllers.UD
                 //List<OraError> DBErrors = ErrorHandling.TryDecodeDbUpdateException(Dex, _OraTranslateMsgs);
                 return StatusCode(StatusCodes.Status417ExpectationFailed, "An Error has occurred");
             }
+        }
+
+        public Task<IActionResult> Get(int KeyVal)
+        {
+            throw new NotImplementedException();
         }
 
         [HttpPost]
