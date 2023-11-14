@@ -107,7 +107,7 @@ namespace OCTOBER.Server.Controllers.UD
                 var itm = await _context.GradeTypes
                     .Where(x => x.SchoolId == SchoolID)
                     .Where(x => x.GradeTypeCode == GradeTypeCode)
-                    .WhereFirstOrDefaultAsync();
+                    .FirstOrDefaultAsync();
 
                 if (itm != null)
                 {
