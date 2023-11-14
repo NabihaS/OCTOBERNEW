@@ -29,30 +29,168 @@ namespace OCTOBER.Server.Controllers.UD
         {
         }
 
-        public Task<IActionResult> Delete(int KeyVal)
+        [HttpDelete]
+        [Route("Delete/{SchoolID}")]
+
+        public async Task<IActionResult> Delete(int SchoolID)
         {
-            throw new NotImplementedException();
+            Debugger.Launch();
+            try
+            {
+                await _context.Database.BeginTransactionAsync();
+
+                var itm = await _context.GradeTypes.Where(x => x.SchoolId == SchoolID).WhereFirstOrDefaultAsync();
+
+                if (itm != null)
+                {
+                    _context.Schools.Remove(itm);
+                }
+                await _context.SaveChangesAsync();
+                await _context.Database.CommitTransactionAsync();
+
+                return Ok();
+            }
+            catch (Exception Dex)
+            {
+                await _context.Database.RollbackTransactionAsync();
+                //List<OraError> DBErrors = ErrorHandling.TryDecodeDbUpdateException(Dex, _OraTranslateMsgs);
+                return StatusCode(StatusCodes.Status417ExpectationFailed, "An Error has occurred");
+            }
         }
 
-        public Task<IActionResult> Get()
+
+        [HttpGet]
+        [Route("Get")]
+        public async Task<IActionResult> Get()
         {
-            throw new NotImplementedException();
+            try
+            {
+                await _context.Database.BeginTransactionAsync();
+
+                var result = await _context.GradeTypes.Select(sp => new GradeTypeDTO
+                {
+                    SchoolId=sp.SchoolId,
+                    GradeTypeCode= sp.GradeTypeCode,
+                    CreatedBy = sp.CreatedBy,
+                    CreatedDate = sp.CreatedDate,
+                    Description = sp.Description,
+                    ModifiedBy = sp.ModifiedBy,
+                    ModifiedDate = sp.ModifiedDate,
+
+                })
+                .ToListAsync();
+                await _context.Database.RollbackTransactionAsync();
+                return Ok(result);
+            }
+            catch (Exception Dex)
+            {
+                await _context.Database.RollbackTransactionAsync();
+                //List<OraError> DBErrors = ErrorHandling.TryDecodeDbUpdateException(Dex, _OraTranslateMsgs);
+                return StatusCode(StatusCodes.Status417ExpectationFailed, "An Error has occurred");
+            }
         }
 
-        public Task<IActionResult> Get(int KeyVal)
+        [HttpGet]
+        [Route("Get/{SchoolID}/{GradeTypeCode}")]
+        public async Task<IActionResult> Get(int SchoolID, string GradeTypeCode)
         {
-            throw new NotImplementedException();
-        }
+            try
+            {
+                await _context.Database.BeginTransactionAsync();
 
-        public Task<IActionResult> Post([FromBody] GradeTypeDTO _T)
-        {
-            throw new NotImplementedException();
-        }
+                GradeTypeDTO? result = await _context
+                    .GradeTypes
+                    .Where(x => x.GradeTypeCode == GradeTypeCode)
+                    .Where(x => x.SchoolId == SchoolID)
+                     .Select(sp => new GradeTypeDTO
+                     {
+                         GradeTypeCode = sp.GradeTypeCode,
+                         SchoolId=sp.SchoolId,
+                         CreatedBy = sp.CreatedBy,
+                         CreatedDate = sp.CreatedDate,
+                         Description = sp.Description,
+                         ModifiedBy = sp.ModifiedBy,
+                         ModifiedDate = sp.ModifiedDate,
+                     })
+                .SingleOrDefaultAsync();
 
-        public Task<IActionResult> Put([FromBody] GradeTypeDTO _T)
-        {
-            throw new NotImplementedException();
+                await _context.Database.RollbackTransactionAsync();
+                return Ok(result);
+            }
+            catch (Exception Dex)
+            {
+                await _context.Database.RollbackTransactionAsync();
+                //List<OraError> DBErrors = ErrorHandling.TryDecodeDbUpdateException(Dex, _OraTranslateMsgs);
+                return StatusCode(StatusCodes.Status417ExpectationFailed, "An Error has occurred");
+            }
         }
     }
+
+
+    [HttpPost]
+    [Route("Post")]
+    public async Task<IActionResult> Post([FromBody]
+                                                GradeTypeDTO _GradeTypeDTO)
+    {
+        try
+        {
+            await _context.Database.BeginTransactionAsync();
+
+            var itm = await _context.GradeTypes.Where(x => x.SchoolId == _GradeTypeDTO.SchoolId).FirstOrDefaultAsync();
+
+            if (itm == null)
+            {
+                GradeType c = new GradeType
+                {
+                    Description = _GradeTypeDTO.Description,
+                    SchoolId = _GradeTypeDTO.SchoolId,
+                    GradeTypeCode= _GradeTypeDTO.GradeTypeCode
+                };
+                _context.GradeTypes.Add(c);
+                await _context.SaveChangesAsync();
+                await _context.Database.CommitTransactionAsync();
+            }
+            return Ok();
+        }
+        catch (Exception Dex)
+        {
+            await _context.Database.RollbackTransactionAsync();
+            //List<OraError> DBErrors = ErrorHandling.TryDecodeDbUpdateException(Dex, _OraTranslateMsgs);
+            return StatusCode(StatusCodes.Status417ExpectationFailed, "An Error has occurred");
+        }
+    }
+
+    [HttpPut]
+    [Route("Put")]
+    public async Task<IActionResult> Put([FromBody]
+                                                GradeTypeDTO _GradeTypeDTO)
+    {
+
+        Debugger.Launch();
+
+        try
+        {
+            await _context.Database.BeginTransactionAsync();
+
+            var itm = await _context.GradeTypes.Where(x => x.CourseNo == _GradeTypeDTO.SchoolId).FirstOrDefaultAsync();
+
+            itm.Description = _GradeTypeDTO.Description;
+            itm.SchoolId = _GradeTypeDTO.SchoolId;
+            itm.GradeTypeCode = _GradeTypeDTO.GradeTypeCode;
+
+            _context.GradeTypes.Update(itm);
+            await _context.SaveChangesAsync();
+            await _context.Database.CommitTransactionAsync();
+
+            return Ok();
+        }
+        catch (Exception Dex)
+        {
+            await _context.Database.RollbackTransactionAsync();
+            //List<OraError> DBErrors = ErrorHandling.TryDecodeDbUpdateException(Dex, _OraTranslateMsgs);
+            return StatusCode(StatusCodes.Status417ExpectationFailed, "An Error has occurred");
+        }
+    }
+
 }
 
